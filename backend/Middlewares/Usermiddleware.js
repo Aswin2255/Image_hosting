@@ -23,7 +23,7 @@ module.exports.Verifyuser = (req,res,next)=>{
                     next()
                 }
                 else{
-                    res.json({status:false})
+                    res.json({status:false,message:'sorry cannote find the user in database'})
                     
                 }
             }
@@ -34,7 +34,7 @@ module.exports.Verifyuser = (req,res,next)=>{
 
     }
     else{
-        res.json({status:false})
+        res.json({status:false,message:'no token found login again'})
         
 
     }
