@@ -3,9 +3,15 @@ import { useState } from 'react'
 import { useReducer } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import instance from '../Axios'
+import { useDispatch, useSelector } from 'react-redux'
 import Cards from '../components/Cards'
+import { checkuser, getuser, registeruser, usersignup } from '../redux/Slice'
+import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 
 function Signup() {
+    const disp = useDispatch()
+    const navigate = useNavigate()
     const [emailvalid,setemailvalid] = useState(true)
     const [usernamevalid,setusernamevalid] = useState(true)
     const [passvalid,setpassvalid] = useState(true)
@@ -48,10 +54,21 @@ function Signup() {
             let usernamecheck = formstate.username.match(/^[a-zA-Z-]+$/);
             setusernamevalid(usernamecheck)
             let passcheck = formstate.pass.length >=4
-            setpassvalid(passvalid)
+            setpassvalid(passcheck)
             let passmatch = formstate.pass === formstate.cpass
             setcpass(passmatch)
             if(usernamecheck&&emailcheck&&passvalid&&passcheck){
+                const {data} = await instance.post('/signup',formstate,{withCredentials:true})
+                if(data.created){
+                    disp(registeruser({
+                        type:'user',
+                        user:data.user
+                    }))
+                    navigate('/')
+                }
+                else{
+                    generateerror('Email already registered')
+                }
                
             }
 
@@ -62,6 +79,15 @@ function Signup() {
         
     }
     const[formstate,dispatch] = useReducer(reducer,initialstate)
+    
+    useEffect(()=>{
+        disp(checkuser()).then((data)=>{
+            console.log(data)
+            if(data.payload.status){
+                navigate('/')
+            }
+        })
+    },[])
     
   return (
     <div className='h-screen flex items-center'>

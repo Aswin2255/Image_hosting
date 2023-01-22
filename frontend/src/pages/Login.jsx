@@ -1,13 +1,18 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useReducer } from 'react'
-import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast, ToastContainer } from 'react-toastify'
+import instance from '../Axios'
 import Cards from '../components/Cards'
+import { checkuser, registeruser } from '../redux/Slice'
 
 function Login() {
     const [emailvalid,setemailvalid] = useState(true)
     const [passvalid,setpassvalid] = useState(true)
+    const disp = useDispatch()
+    const navigate = useNavigate()
     const initialstate = {
         email:'',
         pass:''
@@ -35,17 +40,38 @@ function Login() {
             payload:e.target.value
         })
     }
-    const submit = ()=>{
+    const submit = async ()=>{
         if(formstate.email&&formstate.pass){
             let checkemail = formstate.email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
             setemailvalid(checkemail)
             let checkpass = formstate.pass.length >=4
             setpassvalid(checkpass)
+            if(checkemail&&checkpass){
+                const {data} = await instance.post('/login',formstate,{withCredentials:true})
+                if(data.login){
+                    disp(registeruser({
+                        type:'user',
+                        user:data.user.username
+                    }))
+                    navigate('/')
+                }
+                else{
+                    generateerror('no user found')
+                }
+            }
         }
         else{
            generateerror('all fields are required')
         }
     }
+    useEffect(()=>{
+        disp(checkuser()).then((data)=>{
+            console.log(data)
+            if(data.payload.status){
+                navigate('/')
+            }
+        })
+    },[])
     const[formstate,dispatch] = useReducer(reducer,initialstate)
   return (
     <div className='h-screen flex items-center'>

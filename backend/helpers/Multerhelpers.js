@@ -1,11 +1,14 @@
 const multer = require('multer')
 
-const storage = multer.diskStorage({
-    destination:(req,file,cb)=>{
-        cb(null,"../backend/public")
+const storage =  multer.diskStorage({
+    
+    destination:  (req,file,cb)=>{
+        console.log('mu')
+        cb(null,"../frontend/src/images")
     },
     filename:(req,file,cb)=>{
-        console.log(file)
+        console.log('reached multer')
+        console.log(file.images)
         cb(null, Date.now() + '-' + file.originalname )
     }
 

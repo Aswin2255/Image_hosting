@@ -23,7 +23,7 @@ module.exports.register = async (req,res,next)=>{
                 httpOnly:false,
                 maxage:maxage * 1000
             });
-            res.json({user:data,created:true})
+            res.json({user:req.body.username,created:true})
             
         }).catch((er)=>{
             console.log(er)
@@ -52,4 +52,8 @@ module.exports.login = async(req,res,next)=>{
         })
 
   
+}
+module.exports.checkuser = async(req,res,next)=>{
+    console.log(res.userdetails)
+    res.json({status:true,user:res.userdetails.name})
 }
